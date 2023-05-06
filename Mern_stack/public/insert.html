@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Insert-REACT</title>
+	<script src="react/react.development.js"></script>
+	<script src="react/react-dom.development.js"></script>
+	<script src="react/prop-types.js"></script>
+	<script src="react/axios.min.js"></script>
+	<script src="react/babel.min.js"></script>
+	<!-- Favicons -->
+	<link href="assets/img/favicon.png" rel="icon">
+	<link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+	<!-- Google Fonts -->
+	<link
+		href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Jost:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+		rel="stylesheet">
+
+	<!-- Vendor CSS Files -->
+	<link href="assets/vendor/aos/aos.css" rel="stylesheet">
+	<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+	<link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+	<link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+	<link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+	<link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+	<!-- Tstulate Main CSS File -->
+	<link href="assets/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+	<div id="root"></div>
+	<script type="text/babel">
+
+		class App extends React.Component {
+
+			constructor(props) {
+				super(props);
+				this.state = {
+					stuid: '',
+					stuname: '',
+					studata: []
+				}
+			};
+
+			handleSubmit(e) {
+				e.preventDefault();
+				const mydata1 =
+				{
+					stuid: this.state.stuid,
+					stuname: this.state.stuname
+				};
+				axios({
+					method: "POST",
+					url: "http://localhost:8888/api/savedata",
+					data: mydata1,
+
+				}).then((response) => {
+					console.log("Data has been sent to server");
+					if (response.data.status === 'success') {
+						console.log("Data has been submitted");
+						//alert("Student Inserted.  "+response.data.mydata.stuid+":"+response.data.mydata.stuname)
+						console.log(response.data.mydata.stuid + ":" + response.data.mydata.stuname + ":" + response.data.mydata.serverMessage);
+						const myresponsedata = JSON.stringify(response.data.mydata)
+						this.setState({ studata: myresponsedata })
+						this.resetForm()
+					} else if (response.data.status === 'fail') {
+						alert("Duplicate stulyee ID")
+						this.resetForm()
+					}
+
+				})
+					.catch((e) => {
+						console.log("Internal Server error" + e);
+					});;
+
+			};
+
+			resetForm() {
+				this.setState({ stuid: '', stuname: '' })
+			};
+
+
+			render() {
+				//console.log("State:",this.state)
+				return (
+					<div className="container">
+						<div className="row justify-content-center mt-5">
+							<div className="col-md-6 ">
+								<form id="contact-form" onSubmit={this.handleSubmit.bind(this)} method="POST">
+									<div className="form-group">
+										<label htmlFor="stuid">Student ID :</label>
+										<input type="text" className="form-control" id="stuid" name="stuid" value={this.state.stuid} onChange={this.onstuChange.bind(this)} />
+									</div>
+									<div className="form-group">
+										<label htmlFor="stuname">Student Name :</label>
+										<input type="text" className="form-control" id="stuname" name="stuname" value={this.state.stuname} onChange={this.onstuChange.bind(this)} />
+									</div>
+									<div className="text-center mt-3">
+										<button type="submit" className="btn btn-primary">Submit</button>
+									</div>
+								</form>
+								<div className="mt-3">
+									{this.state.studata && (
+										<div className="alert alert-success" role="alert">
+											{this.state.studata}
+										</div>
+									)}
+								</div>
+								<div className="text-center mt-3">
+									<a href="index.html" className="btn btn-secondary">Back</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				);
+
+			}
+			// Getting access to entered values
+			onstuChange(event) {
+				this.setState({ [event.target.name]: event.target.value });
+			}
+
+		}
+		ReactDOM.render(<App />, document.getElementById('root'));
+	</script>
+
+</body>
+
+</html>
